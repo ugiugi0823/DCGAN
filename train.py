@@ -17,6 +17,23 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from model import Discriminator, Generator, initialize_weights
 
+import wandb
+
+CFG = {
+    'IMG_SIZE':64,
+    'EPOCHS':30,
+    'LEARNING_RATE':2e-4,
+    'BATCH_SIZE': 128,
+    # 'SEED':41,
+    # 'NUM_WORKERS': 4
+    }
+
+
+wandb.init(project="DCGAN-dog", entity="hagisilta")
+wandb.run.name = "DCGAN_20230224_bs-128_epoch-30_lr-2e-4_Mickey"
+wandb.config.update(CFG)
+
+
 # Hyperparameters etc.
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 LEARNING_RATE = 2e-4  # could also use two lrs, one for gen and one for disc
@@ -24,7 +41,7 @@ BATCH_SIZE = 128
 IMAGE_SIZE = 64
 CHANNELS_IMG = 3
 NOISE_DIM = 100
-NUM_EPOCHS = 2
+NUM_EPOCHS = 30
 FEATURES_DISC = 64
 FEATURES_GEN = 64
 
@@ -61,8 +78,8 @@ opt_disc = optim.Adam(disc.parameters(), lr=LEARNING_RATE, betas=(0.5, 0.999))
 criterion = nn.BCELoss()
 
 fixed_noise = torch.randn(32, NOISE_DIM, 1, 1).to(device)
-writer_real = SummaryWriter(f"logs3/real")
-writer_fake = SummaryWriter(f"logs3/fake")
+writer_real = SummaryWriter(f"dogs/real")
+writer_fake = SummaryWriter(f"dogs/fake")
 step = 0
 
 gen.train()
@@ -92,12 +109,17 @@ for epoch in range(NUM_EPOCHS):
         loss_gen.backward()
         opt_gen.step()
 
+        
+
         # Print losses occasionally and print to tensorboard
         if batch_idx % 100 == 0:
             print(
                 f"Epoch [{epoch}/{NUM_EPOCHS}] Batch {batch_idx}/{len(dataloader)} \
                   Loss D: {loss_disc:.4f}, loss G: {loss_gen:.4f}"
             )
+            # wandb log
+            wandb.log({"D_loss": loss_disc, "G_loss":loss_gen})
+
 
             with torch.no_grad():
                 fake = gen(fixed_noise)
