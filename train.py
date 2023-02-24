@@ -22,15 +22,15 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 LEARNING_RATE = 2e-4  # could also use two lrs, one for gen and one for disc
 BATCH_SIZE = 128
 IMAGE_SIZE = 64
-CHANNELS_IMG = 1
+CHANNELS_IMG = 3
 NOISE_DIM = 100
-NUM_EPOCHS = 5
+NUM_EPOCHS = 2
 FEATURES_DISC = 64
 FEATURES_GEN = 64
 
 transforms = transforms.Compose(
     [
-        transforms.Resize(IMAGE_SIZE),
+        transforms.Resize((IMAGE_SIZE,IMAGE_SIZE)),
         transforms.ToTensor(),
         transforms.Normalize(
             [0.5 for _ in range(CHANNELS_IMG)], [0.5 for _ in range(CHANNELS_IMG)]
@@ -39,12 +39,17 @@ transforms = transforms.Compose(
 )
 
 # If you train on MNIST, remember to set channels_img to 1
-dataset = datasets.MNIST(
-    root="dataset/", train=True, transform=transforms, download=True
-)
+# dataset = datasets.MNIST(
+#     root="dataset/", train=True, transform=transforms, download=True
+# )
+
+dataset = datasets.ImageFolder(root="./images/Images", transform=transforms)
+
+
+
 
 # comment mnist above and uncomment below if train on CelebA
-# dataset = datasets.ImageFolder(root="celeb_dataset", transform=transforms)
+
 dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 gen = Generator(NOISE_DIM, CHANNELS_IMG, FEATURES_GEN).to(device)
 disc = Discriminator(CHANNELS_IMG, FEATURES_DISC).to(device)
@@ -56,8 +61,8 @@ opt_disc = optim.Adam(disc.parameters(), lr=LEARNING_RATE, betas=(0.5, 0.999))
 criterion = nn.BCELoss()
 
 fixed_noise = torch.randn(32, NOISE_DIM, 1, 1).to(device)
-writer_real = SummaryWriter(f"logs/real")
-writer_fake = SummaryWriter(f"logs/fake")
+writer_real = SummaryWriter(f"logs3/real")
+writer_fake = SummaryWriter(f"logs3/fake")
 step = 0
 
 gen.train()
