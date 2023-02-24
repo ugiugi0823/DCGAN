@@ -18,6 +18,7 @@ from torch.utils.tensorboard import SummaryWriter
 from model import Discriminator, Generator, initialize_weights
 
 import wandb
+import time
 
 CFG = {
     'IMG_SIZE':64,
@@ -84,8 +85,16 @@ step = 0
 
 gen.train()
 disc.train()
+print(f"""
+이제 학습 시작합니다.
+""")
+
 
 for epoch in range(NUM_EPOCHS):
+    s_time = time.strftime('%c', time.localtime(time.time()))
+    ss_time = time.time()
+
+    print(f"시작시간   {s_time}")
     # Target labels not needed! <3 unsupervised
     for batch_idx, (real, _) in enumerate(dataloader):
         real = real.to(device)
@@ -119,8 +128,9 @@ for epoch in range(NUM_EPOCHS):
             )
             # wandb log
             wandb.log({"D_loss": loss_disc, "G_loss":loss_gen})
+            
 
-
+            
             with torch.no_grad():
                 fake = gen(fixed_noise)
                 # take out (up to) 32 examples
@@ -131,3 +141,19 @@ for epoch in range(NUM_EPOCHS):
                 writer_fake.add_image("Fake", img_grid_fake, global_step=step)
 
             step += 1
+    e_time = time.strftime('%c', time.localtime(time.time()))
+    ee_time = time.time()
+    time_len_m, time_len_s = divmod(ee_time - ss_time, 60)  
+    print(f"종료시간   {e_time}")
+    print(f"분 : {time_len_m},   초 : {time_len_s}")
+
+
+
+
+
+
+
+
+
+
+
