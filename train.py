@@ -144,8 +144,8 @@ for epoch in range(NUM_EPOCHS):
     e_time = time.strftime('%c', time.localtime(time.time()))
     ee_time = time.time()
     time_len_m, time_len_s = divmod(ee_time - ss_time, 60)  
-    print(f"종료시간   {e_time}")
-    print(f"분 : {time_len_m},   초 : {time_len_s}")
+    print(f"종료시간   {e_time}  분 : {time_len_m},   초 : {time_len_s}")
+    
 
 
 
